@@ -1,0 +1,326 @@
+---
+title: "math_bridge_hw-2"
+author: "Nicholas Chung"
+date: "7/21/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Homework 2
+
+### Problem 1. Dice Rolls
+##### If you roll a pair of fair dice, what is the probability of...
+
+##### (a) getting a sum of 1?
+```{r}
+poss_sums<-c(2,3,4,5,6,7,8,9,10,11,12)
+prob_sums<-c(((1/6)^2),(2*(1/6)^2),(3*(1/6)^2),(4*(1/6)^2),(5*(1/6)^2),(6*(1/6)^2),(5*(1/6)^2),(4*(1/6)^2),(3*(1/6)^2),(2*(1/6)^2),((1/6)^2))
+prob_sums.dist<-cbind(poss_sums,prob_sums)
+prob_sums.dist
+```
+##### Answer:
+$P(X=1) = 0$
+
+##### (b) getting a sum of 5?
+
+##### Answer:
+$P(X=5) = \frac {1}{6}^2 +\frac {1}{6}^2 +\frac {1}{6}^2 +\frac {1}{6}^2$
+```{r}
+P <- 4*(1/6)^2
+paste0("The probability of getting a sum of 5 is ", round(P,4))
+```
+$P(X=5) = 0.1111$
+
+##### (c) getting a sum of 12?
+
+##### Answer:
+$P(X=12) = \frac {1}{6}^2$
+```{r}
+P <- (1/6)^2
+paste0("The probability of getting a sum of 12 is ", round(P,4))
+```
+$P(X=12) = 0.0278$
+
+### Problem 2. School absences
+##### Data collected at elementary schools in DeKalb County, GA suggest that each year roughly 25% of students miss exactly one day of school, 15% miss 2 days, and 28% miss 3 or more days due to sickness.
+```{r}
+one_day<-0.25
+two_days<-0.15
+three_or_more<-0.28
+```
+
+##### (a) What is the probability that a student chosen at random doesn’t miss any days of school due to sickness this year?
+
+$P(X=0) = 1 - P(A) + P(B) + P(C)$
+$P(X=0) = 1 - (.25 + .15 + .28)$
+
+##### Answer:
+```{r}
+paste0("The probability that a randomly chosen student doesn't miss any school days due to sickness is ", round(1-(one_day+two_days+three_or_more),4))
+```
+$P(X=0) = 0.3200$
+
+##### (b) What is the probability that a student chosen at random misses no more than one day?
+
+$P(X\leq 1) = P(X=0) + P(A)$
+
+##### Answer:
+```{r}
+paste0("The probability that a randomly chosen student misses no more than one day due to sickness is ", round(1-(one_day+two_days+three_or_more)+one_day,4))
+```
+$P(X\leq 1) = .5700$
+
+##### (c) What is the probability that a student chosen at random misses at least one day?
+
+$P(X\geq 1) = P(A) + P(B) + P(C)$
+
+##### Answer:
+```{r}
+paste0("The probability that a randomly chosen student misses at least one day due to sickness is ", round(one_day+two_days+three_or_more,4))
+```
+$P(X\geq 1) = .6800$
+
+##### (d) If a parent has two kids at a DeKalb County elementary school, what is the probability that neither kid will miss any school? Note any assumption you must make to answer this question.
+
+```
+Assumptions: 
++ Neither kid's absence affects the likelihood of the other's absence (i.e., absence is an independent event). 
+```
+$P(kidn=0) = 1 - P(A) + P(B) + P(C)$
+$P(Y) = kid1 \cap kid2$
+$P(Y) = .32 \times .32$
+
+##### Answer:
+```{r}
+paste0("The probability that neither kid will miss any school due to sickness is ", round((1-(one_day+two_days+three_or_more))^2,4))
+```
+$P(Y) = 0.1024$
+
+##### (e) If a parent has two kids at a DeKalb County elementary school, what is the probability that both kids will miss some school, i.e. at least one day? Note any assumption you make.
+
+```
+Assumptions: 
++ Each kid's absence affects the likelihood of the other's absence (i.e., absence is a dependent event).
+```
+$P(e) = {A \cap B \cap C}$
+$P(A) + P(B) + P(C) = .68$
+
+##### Answer:
+```{r}
+paste0("The probability that both kids will miss some school due to sickness is ", round((one_day+two_days+three_or_more)^2,4))
+```
+$P(e) = 0.4624$
+
+##### (f) If you made an assumption in part (d) or (e), do you think it was reasonable? If you didn’t make any assumptions, double check your earlier answers.
+```
+Yes.
+```
+
+### Problem 3. Health coverage, relative frequencies
+##### The Behavioral Risk Factor Surveillance System (BRFSS) is an annual telephone survey designed to identify risk factors in the adult population and report emerging health trends. The following table displays the distribution of health status of respondents to this survey (excellent, very good, good, fair, poor) and whether or not they have health insurance.
+```{r}
+mat=matrix(c(.023, 0.0364, 0.0427, 0.0192, 0.0050,0.2099, 0.3123 ,0.2410 ,0.0817,0.0289), byrow=TRUE, nrow=2)
+colnames(mat)=c("Excellent", "Very Good","Good", "Fair","Poor")
+rownames(mat)=c("No Coverage","Coverage")
+mat
+```
+
+##### (a) Are being in excellent health and having health coverage mutually exclusive?
+```{r}
+# calculate sum per row and column
+r_mat<-cbind(mat, sum = rowSums(mat))
+s_mat<-rbind(r_mat, sum = colSums(r_mat))
+s_mat
+```
+
+##### Answer:
+$P(excellent\cap coverage)=0.2099$
+```{r}
+paste0("Given P=", round(s_mat[3,1],4),", being in excellent health and having health coverage is not mutually exclusive.")
+```
+
+##### (b) What is the probability that a randomly chosen individual has excellent health?
+
+##### Answer:
+$P(A\cup B)=P(coverage+nocoverage)=0.2099+0.0230$
+```{r}
+paste0("The probability that a randomly chosen individual has excellent health is ", round(s_mat[3,1],4))
+```
+
+##### (c) What is the probability that a randomly chosen individual has excellent health given that he has health coverage?
+
+##### Answer:
+$P(A|B)=\frac {P(A\cap B)}{P(B)}=\frac {P(B|A)\bullet P(A)}{P(B)}$
+$P(A|B)=P(excellent|coverage)=\frac {0.2099}{0.8738}$
+```{r}
+# select and divide vectors from matrix
+ex_health_given_cov <- s_mat[2,1]/s_mat[2,6]
+paste0("The probability that a randomly chosen individual has excellent health given that he has health coverage is ", round(ex_health_given_cov,4))
+```
+
+##### (d) What is the probability that a randomly chosen individual has excellent health given that he doesn’t have health coverage?
+
+##### Answer:
+$P(A|B)=\frac {P(A\cap B)}{P(B)}=\frac {P(B|A)\bullet P(A)}{P(B)}$
+$P(A|B)=P(excellent|nocoverage)=\frac {0.0230}{0.1263}$
+```{r}
+paste0("The probability that a randomly chosen individual has excellent health given that he doesn’t have health coverage is ", round(s_mat[1,1]/s_mat[1,6],4))
+```
+
+##### (e) Do having excellent health and having health coverage appear to be independent?
+
+##### Answer:
+$P(A \cap B)=P(A)\bullet P(B)$
+$P(excellent\cap coverage)=P(excellent)\bullet P(coverage)$
+```{r}
+# select and multiply vectors from matrix
+ex_health_and_cov <- s_mat[3,1]*s_mat[2,6]
+# answer
+paste0("Excellent health and having health coverage are not independent because ", round(ex_health_and_cov,4), " is not equal to ", round(ex_health_given_cov,4))
+```
+
+### Problem 4. Exit Poll.
+##### Edison Research gathered exit poll results from several sources for the Wisconsin recall election of Scott Walker. They found that 53% of the respondents voted in favor of Scott Walker. Additionally, they estimated that of those who did vote in favor for Scott Walker, 37% had a college degree, while 44% of those who voted against Scott Walker had a college degree. Suppose we randomly sampled a person who participated in the exit poll and found that he had a college degree. What is the probability that he voted in favor of Scott Walker?
+```{r}
+yes <- 0.53
+collegiatesYes <- yes*0.37
+paste0("The probability that a respondent voted against Walker has a college degree is ", round(collegiatesYes,4))
+no <-1- yes
+paste0("The probability that a respondent voted against Walker is ", round(no,4))
+collegiatesNo <- no*0.44
+paste0("The probability that a respondent who voted against Walker has a college degree is ", round(collegiatesNo,4))
+```
+
+##### Answer:
+$P(yes \cap collegiate) = \frac {P(collegiatesYes)}{collegiatesNo + collegiatesYes}$
+```{r}
+paste0("The probability that a respondent with a college degree voted for Walker is ", round((collegiatesYes/(collegiatesYes+collegiatesNo)),4))
+```
+$P(X)=0.4867$
+
+### Problem 5. Books on a bookshelf
+##### The table below shows the distribution of books on a bookcase based on whether they are nonfiction or fiction and hardcover or paperback.
+```{r}
+mymat2=matrix(c(13,59,15,8),nrow=2,byrow=TRUE)
+colnames(mymat2)=c("hard","paper")
+rownames(mymat2)=c("fiction","nonfiction")
+mymat2
+```
+
+##### (a) Find the probability of drawing a hardcover book first then a paperback fiction book second when drawing without replacement.
+
+```{r}
+# calculate sum per row and column
+r_mat <- cbind(mymat2, sum = rowSums(mymat2))
+s_mat <- rbind(r_mat, sum = colSums(r_mat))
+s_mat
+```
+
+##### Answer:
+$P(A|B)=\frac{P(A\cap B)}{P(B)}=\frac{P(B|A)\bullet P(A)}{P(B)}$ 
+$P(A|B)=(28/95) \bullet (59/94)$
+```{r}
+# select and divide vectors from matrix
+hardcover <- s_mat[3,1]/s_mat[3,3]
+paper_fiction_nr <- s_mat[1,2]/(s_mat[3,3]-1)
+# answer
+paste0("Conditional probability of drawing a hardcover book P(A) first, then a paperback fiction book P(B) second (without replacement) is ", round(hardcover*paper_fiction_nr,4))
+```
+
+##### (b) Determine the probability of drawing a fiction book first and then a hardcover book second, when drawing without replacement.
+
+##### Answer:
+$P(A|B)=(72/95) \bullet (28/94)$
+```{r}
+# select and divide vectors from matrix
+fiction <- s_mat[1,3]/s_mat[3,3]
+hardcover_nr <- s_mat[3,1]/(s_mat[3,3]-1)
+# answer
+paste0("Conditional probability of drawing a fiction book P(A) first, then a hardcover book P(B) second (without replacement) is ", round(fiction*hardcover_nr,4))
+```
+
+##### (c) Calculate the probability of the scenario in part (b), except this time complete the calculations under the scenario where the first book is placed back on the bookcase before randomly drawing the second book.
+
+##### Answer:
+$P(A \cap B)=(72/95) \bullet (28/95)$
+```{r}
+paste0("Conditional probability of drawing a fiction book P(A) first, then a hardcover book P(B) second (with replacement) is ", round(fiction*hardcover,4))
+```
+$P(A \cap B)=0.223$
+
+##### (d) The final answers to parts (b) and (c) are very similar. Explain why this is the case.
+
+##### Answer:
+```
+Answers (b) and (c) are similar because the denominator changes by only 1 where the population size is large. 
+```
+
+### Problem 6. Is it worth it?
+##### Andy is always looking for ways to make money fast. Lately, he has been trying to make money by gambling. Here is the game he is considering playing: The game costs 2 dollars to play. He draws a card from a deck. If he gets a number card (2-10), he wins nothing. For any face card (jack, queen or king), he wins 3 dollars. For any ace, he wins 5 dollars and he wins an extra $20 if he draws the ace of clubs.
+
+(a) Create a probability model and find Andy’s expected profit per game.
+```{r}
+# create matrix to demonstrate probability of drawing each card and associated payouts
+mat=matrix(c(32/52,4/52,4/52,4/52,3/52,1/52,0,3,3,3,5,20,-2,1,1,1,3,18), byrow=TRUE, nrow=3)
+colnames(mat)=c("2-10","jack","queen","king","ace","ace of clubs")
+rownames(mat)=c("odds","prize","payout")
+mat
+```
+
+```{r}
+# select and divide vectors from matrix
+number_card <- mat[1,1]
+face_card <- mat[1,2]+mat[1,3]+mat[1,4]
+ace <- mat[1,5]
+ace_of_clubs <- mat[1,6]
+# answer
+paste0("Each time Andy plays this game, he can expect a payout of $", round((number_card*-2)+(face_card*1)+(ace*3)+(ace_of_clubs*18),4))
+```
+
+##### (b) Would you recommend this game to Andy as a good way to make money? Explain.
+```
+No, Andy should expect to lose $0.4808 each time he plays the game.
+```
+
+### Problem 7. Scooping ice cream.
+##### Ice cream usually comes in 1.5 quart boxes (48 fluid ounces), and ice cream scoops hold about 2 ounces. However, there is some variability in the amount of ice cream in a box as well as the amount of ice cream scooped out. We represent the amount of ice cream in the box as X and the amount scooped out as Y . Suppose these random variables have the following means, standard deviations, and variances:
+```{r}
+mymat3=matrix(c(48,1,1, 2,.25,.0625), nrow=2, byrow=TRUE)
+colnames(mymat3)=c("mean", "SD", "Var")
+rownames(mymat3)=c("X, In Box","Y, Scooped")
+mymat3
+```
+
+##### (a) An entire box of ice cream, plus 3 scoops from a second box is served at a party. How much ice cream do you expect to have been served at this party? What is the standard deviation of the amount of ice cream served?
+
+##### Answer:
+```{r}
+# select and transform vectors from matrix
+ice_cream_served <- mymat3[1,1] + (mymat3[2,1]*3)
+paste0("We expect ", ice_cream_served, " fluid ounces of ice cream to have been served at this party.")
+sqrt_served <- sqrt(mymat3[1,3] + (3*mymat3[2,3]))
+# answer
+paste0("The standard deviation of that amount of ice cream served is ", round(sqrt_served,4))
+```
+
+##### (b) How much ice cream would you expect to be left in the box after scooping out one scoop of ice cream? That is, find the expected value of X ??? Y . What is the standard deviation of the amount left in the box?
+
+##### Answer:
+```{r}
+# select and transform vectors from matrix
+box_less_one_scoop <- mymat3[1,1] - mymat3[2,1]
+paste0("We expect ", box_less_one_scoop, " fluid ounces of ice cream to be left in the box after scooping out one scoop of ice cream.")
+sqrt_box_less_one_scoop <- sqrt(mymat3[1,3]+mymat3[2,3])
+# answer
+paste0("The standard deviation of the amount of ice cream left in the box after one scoop is ", round(sqrt_box_less_one_scoop,4))
+```
+
+##### (c) Using the context of this exercise, explain why we add variances when we subtract one random variable from another.
+
+##### Answer:
+```
+The variance of two independent variables increases regardless of the addition or subraction of the variables because the likelihood of variance increases in relation to the other.
+```

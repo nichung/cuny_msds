@@ -1,0 +1,100 @@
+---
+title: "data_607-week_01"
+author: "Nicholas Chung"
+date: "09/05/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+```
+
+## week 1 assignment
+
+##### Your task is to study the dataset and the associated description of the data (i.e. “data dictionary”). You may need to look around a bit, but it’s there! You should take the data, and create a data frame with a subset of the columns in the dataset. You should include the column that indicates edible or poisonous and three or four other columns. You should also add meaningful column names and replace the abbreviations used in the data—for example, in the appropriate column, “e” might become “edible.” Your deliverable is the R code to perform these transformation tasks.
+
+##### Answer:
+```{r}
+shroom_full <- read.csv("agaricus-lepiota.data",sep=",",header=FALSE) # read file
+column_names <- c("edibility", "cap-shape", "cap-surface", "cap-color", "odor", "gill-size", "gill-color", "stalk-shape", "veil-type", "veil-color", "spore-print-color", "population", "habitat") # vector of column names
+shroom_set <- select(shroom_full,-c(5,7,8,12,13,14,15,16,19,20)) # drop columns by position
+colnames(shroom_set) <- column_names # set column names
+shroom_set[] <- lapply(shroom_set, as.character) # transform dataframe values to character
+# transform values into meaningful values based on data dictionary
+shroom_set$edibility[shroom_set$edibility == "e"] <- "edible"
+shroom_set$edibility[shroom_set$edibility == "p"] <- "poisonous"
+shroom_set$'cap-shape'[shroom_set$'cap-shape' == "b"] <- "bell"
+shroom_set$'cap-shape'[shroom_set$'cap-shape' == "c"] <- "conical"
+shroom_set$'cap-shape'[shroom_set$'cap-shape' == "x"] <- "convex"
+shroom_set$'cap-shape'[shroom_set$'cap-shape' == "f"] <- "flat"
+shroom_set$'cap-shape'[shroom_set$'cap-shape' == "k"] <- "knobbed"
+shroom_set$'cap-shape'[shroom_set$'cap-shape' == "s"] <- "sunken"
+shroom_set$'cap-surface'[shroom_set$'cap-surface' == "f"] <- "fibrous"
+shroom_set$'cap-surface'[shroom_set$'cap-surface' == "g"] <- "grooves"
+shroom_set$'cap-surface'[shroom_set$'cap-surface' == "y"] <- "scaly"
+shroom_set$'cap-surface'[shroom_set$'cap-surface' == "s"] <- "smooth"
+shroom_set$'cap-color'[shroom_set$'cap-color' == "n"] <- "brown"
+shroom_set$'cap-color'[shroom_set$'cap-color' == "b"] <- "buff"
+shroom_set$'cap-color'[shroom_set$'cap-color' == "c"] <- "cinnamon"
+shroom_set$'cap-color'[shroom_set$'cap-color' == "g"] <- "gray"
+shroom_set$'cap-color'[shroom_set$'cap-color' == "r"] <- "green"
+shroom_set$'cap-color'[shroom_set$'cap-color' == "p"] <- "pink"
+shroom_set$'cap-color'[shroom_set$'cap-color' == "u"] <- "purple"
+shroom_set$'cap-color'[shroom_set$'cap-color' == "e"] <- "red"
+shroom_set$'cap-color'[shroom_set$'cap-color' == "w"] <- "white"
+shroom_set$'cap-color'[shroom_set$'cap-color' == "y"] <- "yellow"
+shroom_set$odor[shroom_set$odor == "a"] <- "almond"
+shroom_set$odor[shroom_set$odor == "l"] <- "anise"
+shroom_set$odor[shroom_set$odor == "c"] <- "creosote"
+shroom_set$odor[shroom_set$odor == "y"] <- "fishy"
+shroom_set$odor[shroom_set$odor == "f"] <- "foul"
+shroom_set$odor[shroom_set$odor == "m"] <- "musty"
+shroom_set$odor[shroom_set$odor == "n"] <- "none"
+shroom_set$odor[shroom_set$odor == "p"] <- "pungent"
+shroom_set$odor[shroom_set$odor == "s"] <- "spicy"
+shroom_set$'gill-size'[shroom_set$'gill-size' == "b"] <- "broad"
+shroom_set$'gill-size'[shroom_set$'gill-size' == "n"] <- "narrow"
+shroom_set$'gill-color'[shroom_set$'gill-color' == "k"] <- "black"
+shroom_set$'gill-color'[shroom_set$'gill-color' == "n"] <- "brown"
+shroom_set$'gill-color'[shroom_set$'gill-color' == "b"] <- "buff"
+shroom_set$'gill-color'[shroom_set$'gill-color' == "h"] <- "chocolate"
+shroom_set$'gill-color'[shroom_set$'gill-color' == "g"] <- "gray"
+shroom_set$'gill-color'[shroom_set$'gill-color' == "r"] <- "green"
+shroom_set$'gill-color'[shroom_set$'gill-color' == "o"] <- "orange"
+shroom_set$'gill-color'[shroom_set$'gill-color' == "p"] <- "pink"
+shroom_set$'gill-color'[shroom_set$'gill-color' == "u"] <- "purple"
+shroom_set$'gill-color'[shroom_set$'gill-color' == "w"] <- "white"
+shroom_set$'gill-color'[shroom_set$'gill-color' == "y"] <- "yellow"
+shroom_set$'stalk-shape'[shroom_set$'stalk-shape' == "e"] <- "enlarging"
+shroom_set$'stalk-shape'[shroom_set$'stalk-shape' == "t"] <- "tapering"
+shroom_set$'veil-type'[shroom_set$'veil-type' == "p"] <- "partial"
+shroom_set$'veil-type'[shroom_set$'veil-type' == "u"] <- "universal"
+shroom_set$'veil-color'[shroom_set$'veil-color' == "n"] <- "brown"
+shroom_set$'veil-color'[shroom_set$'veil-color' == "o"] <- "orange"
+shroom_set$'veil-color'[shroom_set$'veil-color' == "w"] <- "white"
+shroom_set$'veil-color'[shroom_set$'veil-color' == "y"] <- "yellow"
+shroom_set$'spore-print-color'[shroom_set$'spore-print-color' == "k"] <- "black"
+shroom_set$'spore-print-color'[shroom_set$'spore-print-color' == "n"] <- "brown"
+shroom_set$'spore-print-color'[shroom_set$'spore-print-color' == "b"] <- "buff"
+shroom_set$'spore-print-color'[shroom_set$'spore-print-color' == "h"] <- "chocolate"
+shroom_set$'spore-print-color'[shroom_set$'spore-print-color' == "r"] <- "green"
+shroom_set$'spore-print-color'[shroom_set$'spore-print-color' == "o"] <- "orange"
+shroom_set$'spore-print-color'[shroom_set$'spore-print-color' == "u"] <- "purple"
+shroom_set$'spore-print-color'[shroom_set$'spore-print-color' == "w"] <- "white"
+shroom_set$'spore-print-color'[shroom_set$'spore-print-color' == "y"] <- "yellow"
+shroom_set$population[shroom_set$population == "a"] <- "abundant"
+shroom_set$population[shroom_set$population == "c"] <- "clustered"
+shroom_set$population[shroom_set$population == "n"] <- "numerous"
+shroom_set$population[shroom_set$population == "s"] <- "scattered"
+shroom_set$population[shroom_set$population == "v"] <- "several"
+shroom_set$population[shroom_set$population == "y"] <- "solitary"
+shroom_set$habitat[shroom_set$habitat == "g"] <- "grasses"
+shroom_set$habitat[shroom_set$habitat == "l"] <- "leaves"
+shroom_set$habitat[shroom_set$habitat == "m"] <- "meadows"
+shroom_set$habitat[shroom_set$habitat == "p"] <- "paths"
+shroom_set$habitat[shroom_set$habitat == "u"] <- "urban"
+shroom_set$habitat[shroom_set$habitat == "w"] <- "waste"
+shroom_set$habitat[shroom_set$habitat == "d"] <- "woods"
+shroom_set
+```

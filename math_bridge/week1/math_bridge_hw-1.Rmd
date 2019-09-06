@@ -1,0 +1,209 @@
+---
+title: "cuny_msds-math_bridge_hw-1"
+author: "Nicholas Chung"
+date: "7/20/2019"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Homework 1 
+
+### Derivatives
+Find the derivatives with respect to x of the following:
+  
+#### 1Q
+\[
+  F(x|x \geq 0) = 1 - e^{\lambda*x}
+\]    
+
+#### 1A
+```{r}
+library(Deriv)
+
+# store function
+f1=function(x)1-(exp(-lambda*x))
+
+# derivative of function
+ans=Deriv(f1)
+ans
+```
+
+#### 2Q
+\[
+  F(x|b>a) = \frac{x - a}{b-a}
+\]    
+
+#### 2A
+```{r}
+# store function
+f2=function(x)(x-a)/(b-a)
+
+# derivative of function
+ans=Deriv(f2)
+ans
+```
+
+#### 3Q
+\[
+  F(x|a<x \leq c \leq b) = \frac{(x-a)^2}{(b-a)(c-a)}
+\]    
+
+#### 3A
+```{r}
+# store function
+f3=function(x)(x-a)^2/((b-a)(c-a))
+
+# derivative of function
+ans=Deriv(f3)
+ans
+```
+
+#### 4Q
+\[
+  F(x|a<x \leq c < x < b) = 1 - \frac{(b-x)^2}{(b-a)(c-a)}
+\]    
+
+#### 4A
+```{r}
+# store function
+f4=function(x)1-((b-x)^2/((b-a)(c-a)))
+
+# derivative of function
+ans=Deriv(f4)
+ans
+```
+
+### Integrals
+Solve the following definite and indefinite integrals
+
+#### 5Q
+\[
+  \int_{0}^{10}3x^{3}dx
+\]    
+
+#### 5A
+```{r}
+# store function
+f5=function(x)(3*(x^3))
+
+# integrate definite integral
+ans=integrate(Vectorize(f5),0,10)
+ans
+```
+
+#### 6Q
+\[
+  \int_{0}^{x}x\lambda e^{-\lambda*x} dx
+\]    
+
+#### 6A
+```{r}
+library(mosaicCalc)
+
+# integrate indefinite integral
+ans=antiD(x*lambda*exp(-lambda*x)~x)
+ans
+```
+
+#### 7Q
+\[
+  \int_{0}^{.5}\frac{1}{b-a}dx
+\]    
+
+#### 7A
+```{r}
+# assign values to variables a & b
+a<-0
+b<-1
+
+# store function
+f7=function(x)(1/(b-a))
+
+# integrate definite integral
+ans=integrate(Vectorize(f7),0,.5)
+ans
+```
+
+#### 8Q
+\[
+  \int_{0}^{x}x\frac{1}{\Gamma(\alpha)\beta^\alpha}x^{\alpha-1}e^{-\beta x}dx
+\]    
+
+#### 8A
+```{r}
+# integrate indefinite integral
+ans=antiD(x^{alpha+1}/gamma*alpha*beta^{alpha}*e^{beta}~x)
+ans
+```
+
+### Linear Algebra
+With the following matrix,
+
+\[
+\quad
+x=\begin{bmatrix}
+1 & 2 & 3 \\
+3 & 3 & 1 \\
+4 & 6 & 8
+\end{bmatrix}
+\]
+
+#### 9Q
+Invert it using Gaussian row reduction.    
+
+#### 9A
+```{r}
+library(matlib)
+# store matrix
+A9<-rbind(c(1,2,3),c(3,3,1),c(4,6,8))
+A9
+
+# determine whether matrix is solvable
+gaussianElimination(A9, numeric(3))
+
+# find inverse matrix by elimination
+gaussianElimination(A9, diag(3))
+ans = inv(A9)
+ans
+
+# validate above solution by finding inverse using solve method
+B9=solve(A9)
+B9
+```
+
+#### 10Q
+Find the determinant.    
+
+#### 10A
+```{r}
+# find determinant of matrix
+ans=det(A9)
+ans
+```
+
+#### 11Q
+Conduct LU decomposition.    
+
+#### 11A
+```{r}
+library(pracma)
+
+# use lu() method for LU decomposition
+ans=lu(A9)
+ans
+```
+
+#### 12Q
+Multiply the matrix by its inverse.    
+
+#### 12A
+```{r}
+# multiply matrix A9 and its inverse B9
+ans=A9%*%B9
+ans
+```
