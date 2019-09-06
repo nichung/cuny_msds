@@ -1,0 +1,35 @@
+---
+title: "data_607-week_02"
+author: "Nicholas Chung"
+date: "09/05/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(RPostgres)
+library(DBI)
+```
+
+## week 2 assignment
+
+##### Choose six recent popular movies. Ask at least five people that you know (friends, family, classmates, imaginary friends) to rate each of these movie that they have seen on a scale of 1 to 5. Take the results (observations) and store them in a SQL database. Load the information into an R dataframe. Your deliverables should include your SQL scripts and your R Markdown code, posted to GitHub.
+
+##### Answer:
+```{r}
+con <- dbConnect(RPostgres::Postgres()
+     , host='amrepdev.ckxhi71v1dqf.us-east-1.rds.amazonaws.com'
+     , port='5432'
+     , dbname='postgres'
+     , user='nichung'
+     , password=Sys.getenv("pwd"))
+
+dbExistsTable(con, "movie_ratings")
+
+df <- dbGetQuery(con, '
+  SELECT * FROM movie_ratings
+')
+df
+```
+
