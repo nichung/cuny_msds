@@ -1,0 +1,114 @@
+---
+title: "data_607-week_03"
+author: "Nicholas Chung"
+date: "09/15/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# load packages
+library(stringr)
+library(XML)
+library(RCurl)
+library(tau)
+```
+
+## week 3 assignment
+
+##### Please deliver links to an R Markdown file (in GitHub and rpubs.com) with solutions to problems 3 and 4 from chapter 8 of Automated Data Collection in R.  Problem 9 is extra credit.
+```{r}
+raw.data <-"555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert"
+
+# Extract information
+name <- unlist(str_extract_all(raw.data, "[[:alpha:]., ]{2,}"))
+name
+phone <- unlist(str_extract_all(raw.data, "\\(?(\\d{3})?\\)?(-| )?\\d{3}(-| )?\\d{4}"))
+phone
+data.frame(name = name, phone = phone)
+```
+
+##### 3.1
+##### Use the tools of this chapter to rearrange the vector so that all elements conform to the standard "first_name last_name".
+
+##### Answer:
+```{r}
+# use grep to find strings with commas to identify names with "last, first" convention
+first_lasts <- grep(",", name, value=TRUE)
+first_lasts
+
+# split each string by comma & remove leading whitespace
+name_a <- str_trim(unlist(strsplit(first_lasts[1], ",")), side = "left")
+name_1 <- paste(name_a[2], name_a[1])
+name_b <- str_trim(unlist(strsplit(first_lasts[2], ",")), side = "left")
+name_2 <- paste(name_b[2], name_b[1])
+first_last <- c(name_1, name_2)
+
+# replace names in original vector
+name[str_detect(name,"[[:alpha:]],")] <- first_last
+name
+```
+
+##### 3.2. 
+##### Construct a logical vector indicating whether a character has a title (i.e., Rev. and Dr.).
+
+##### Answer:
+```{r}
+# look for strings with a period following the second or third character
+title <- str_detect(name, "[[:alpha:]]{2,3}\\.")
+title
+
+# show matching names
+name[title]
+```
+
+##### 3.3. 
+##### Construct a logical vector indicating whether a character has a second name.
+
+##### Answer:
+```{r}
+# assumption: "second name" == "middle name"
+# remove titles and trailing spaces
+no_titles <- str_trim(str_remove(name, "[[:alpha:]]{2,3}\\."))
+no_titles
+
+# find names with strings with leading and trailing spaces to indicate presence of a middle name
+grep("[[:space:]]+[[:alpha:]]+[[:space:]]", no_titles, value=TRUE)
+```
+
+##### 4.1
+##### Describe the type of strings that conform to the following regular expressions and construct an example that is matched by the regular expression.
+
+##### Answer:
+```{r}
+#1 [0-9]+\\$ 
+# match any digit one or more times, followed by a '$'
+grep(pattern = "[0-9]+\\$", "2756$", value = TRUE)
+
+#2 \\b[a-z]{1,4}\\b
+# match 'b', followed by any lower case ASCII letter at least 1 time, but not more than 4 times, followed by a 'b' 
+grep(pattern = "\\b[a-z]{1,4}\\b", "blab", value = TRUE )
+
+#3 .*?\\.txt$
+# match an optional '.' zero or one time, then a '.txt' at the end 
+grep(pattern = ".*?\\.txt$", ".foo.txt", value = TRUE )
+
+#4 \\d{2}/\\d{2}/\\d{4} 
+# match digits exactly twice, forward slash, digits exactly twice, forward slash, then digits four times
+grep(pattern = "\\d{2}/\\d{2}/\\d{4}", "09/15/2019", value = TRUE )
+
+#5 <(.+?)>.+?</\\1> 
+# match any optional character immediately preceded by any character wrapped by less-than and greater-than, followed by any optional character immediately preceded by any character, followed by a forward-slash that is followed by the first parenthesis-delimited expression    
+grep(pattern = "<(.+?)>.+?</\\1>", "It is possible to parse HTML markup <strong>formatted</strong> <em>text</em>.", value = TRUE )
+```
+
+##### 9.1
+##### The following code hides a secret message. Crack it with R and regular expressions. Hint: Some of the characters are more revealing than others! The code snippet is also available in the materials www.r-datacollection.com.
+
+##### Answer:
+```{r}
+code <- "clcopCow1zmstc0d87wnkig7OvdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5dwpn0TanwoUwisdij7Lj8kpf03AT5Idr3coc0bt7yczjatOaootj55t3Nj3ne6c4Sfek.r1w1YwwojigOd6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.SqoU65fPa1otfb7wEm24k6t3sR9zqe5fy89n6Nd5t9kc4fE905gmc4Rgxo5nhDk!gr"
+str_replace_all(code, "[[:lower:]]|[[:digit:]]", "")
+```
+
+
