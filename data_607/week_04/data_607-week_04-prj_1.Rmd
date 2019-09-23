@@ -1,0 +1,198 @@
+---
+title: "data_607-week_03"
+author: "Nicholas Chung"
+date: "09/22/2019"
+output: 
+  html_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# load packages
+library(stringr)
+library(XML)
+library(RCurl)
+library(tau)
+library(dplyr)
+```
+
+# 1. question 
+##### In this project, you’re given a text file with chess tournament results where the information has some structure. Your job is to create an R Markdown file that generates a .CSV file (that could for example be imported into a SQL database) with the following information for all of the players:
+##### Player’s Name, Player’s State, Total Number of Points, Player’s Pre-Rating, and Average Pre Chess Rating of Opponents
+##### For the first player, the information would be:
+##### Gary Hua, ON, 6.0, 1794, 1605
+##### 1605 was calculated by using the pre-tournament opponents’ ratings of 1436, 1563, 1600, 1610, 1649, 1663, 1716, and dividing by the total number of games played.
+
+# 2. methodology
+##### In the most general strokes, my approach to this project was comprised of three parts:
+##### 2-1. data loading
+##### 2-2. regex matching
+##### 2-3. referencing and joining 
+##### In "data loading", I tried several different approaches, including using the "scan" and "readLines" methods, but settled for "read.delim" to handle the delimiter explicitly.
+##### In "regex matching", I used regex to match relevant values while preserving empty values, which were necessary for calculating number of games each player played.
+##### In "referencing and joining", I first recreated the original data structure as a dataframe as an intermediate frame of reference. Then I extracted a subset to simplify mapping and validate additional column values before producing the desired output and writing to file. 
+
+# 2-1. data loading
+```{r}
+# read pipe delimited text file in [table format|https://www.rdocumentation.org/packages/psych/versions/1.8.12/topics/read.file], skipping the 1st line
+raw_txt_a = read.delim("tournamentinfo.txt", sep = "|", skip = 1) # read txt file
+head(raw_txt_a)
+```
+
+```{r}
+# read existing headers
+names(raw_txt_a)
+
+# read first two lines
+head(raw_txt_a, n = 2) 
+
+# rename headers
+h_txt <- rename(raw_txt_a, pair_num = Pair, player_name = Player.Name, total_points = Total, round_1 = Round, round_2 = Round.1, round_3 = Round.2, round_4 = Round.3, round_5 = Round.4, round_6 = Round.5, round_7 = Round.6) 
+head(h_txt) 
+```
+
+```{r}
+# remove first row
+rh_txt <- h_txt[-c(1), ]
+head(rh_txt)
+```
+
+```{r}
+# match rows with dashes
+head(str_subset(rh_txt$pair_num, "[-]"))
+```
+
+```{r}
+# remove rows with dashes
+drh_txt <- subset(rh_txt, pair_num!=str_subset(rh_txt$pair_num, "[-]"))
+head(drh_txt)
+```
+
+# 2-2. regex matching
+```{r}
+ # match player number
+player_numbers <- trimws(str_subset(drh_txt$pair_num, "[[:digit:]]")) # do I need to change to int?
+
+# check for completeness against expected count
+length(player_numbers) 
+```
+
+```{r}
+# match player name
+names <- trimws(str_extract_all(drh_txt$player_name, "^[A-Z\\- ]+$", simplify = TRUE)) 
+
+# remove empty strings
+names <- names[names != ""]
+
+# check for completeness against expected count
+length(names)
+```
+
+```{r}
+# match player state
+player_state <- trimws(str_subset(drh_txt$pair_num, "[[:alpha:]]"))
+
+# check for completeness against expected count
+length(player_state)
+```
+
+```{r}
+# match total points
+total_points <- trimws(str_subset(drh_txt$total_points, "\\d(\\.\\d)"))
+
+# check for completeness against expected count
+length(total_points)
+``` 
+
+```{r}
+# match player pre-rating
+# " 15445895 / R: 1794   ->1817" 
+pre_rating <- trimws(unlist(str_extract_all(drh_txt$player_name, "[:space:]\\d{3,4}", simplify = TRUE))[,2])
+
+# remove empty strings
+pre_rating <- pre_rating[pre_rating != ""]
+
+# check for completeness against expected count
+length(pre_rating)
+```
+
+# 2-3. referencing and joining
+```{r}
+# create matrix from relevant data
+player_tbl <- cbind(player_numbers, player_state, names, pre_rating, total_points) # create matrix
+
+# convert matrix to dataframe
+player_tbl <- data.frame(player_tbl)
+head(player_tbl)
+```
+
+```{r}
+# replicate gameplay data
+games <- subset(drh_txt, select = round_1:round_7)
+
+# create matrix excluding irrelevant rows
+games <- games[seq(1, nrow(games), 2), ] 
+
+# extract player numbers from matrix and transpose
+games <- t(apply(games, 1, function(x) str_extract_all(x, "[0-9]{1,2}", simplify = TRUE)))
+
+# store matrix as dataframe
+games_tbl <- data.frame(games)
+
+# reorder dataframe by row number
+rownames(games_tbl) <- seq(length = nrow(games_tbl))
+
+# optionally, rename headers for ease of reference
+games_tbl <- rename(games_tbl, round_1 = X1, round_2 = X2, round_3 = X3, round_4 = X4, round_5 = X5, round_6 = X6, round_7 = X7) 
+
+# produce cleaned version of original tournamentinfo table for reference
+tournament_info <- merge(x = player_tbl, y = games_tbl, by = 0)
+head(tournament_info)
+```
+```{r}
+# replace player numbers in games columns with relevant pre-rating scores
+
+# create key, value list pair
+key <- c(as.character(tournament_info$player_numbers))
+value <- c(as.character(tournament_info$pre_rating))
+# create map from keys and values 
+map <- setNames(value, key)
+
+# map new values to dataframe
+games_tbl[] <- map[unlist(games_tbl)]
+
+# convert new values to integer class
+games_tbl[, ] <- lapply(games_tbl[, ], as.integer)
+
+# sum total score per row while accounting for missing values
+games_tbl$total_score <- rowSums(games_tbl[1:7], na.rm = TRUE)
+
+# count number of games played by discounting missing values
+games_tbl$n_games <- rowSums(!is.na(games_tbl[1:7])) 
+
+# store calculation of average rating per row in the new column
+games_tbl[, "opp_avg_score"] <- round(games_tbl[, "total_score"] / games_tbl[, "n_games"])
+head(games_tbl)
+```
+
+# 3. solution
+```{r}
+# create desired output
+
+# store outputs in desired classes as vectors
+player_num <- as.vector(tournament_info$player_numbers)
+player_nom <- as.vector(tournament_info$names)
+player_state <- as.vector(tournament_info$player_state)
+total_points <- as.vector(tournament_info$total_points)
+pre_rating <- as.integer(as.vector(tournament_info$pre_rating))
+opponent_rating <- as.vector(games_tbl$opp_avg_score)
+
+# create desired dataframe from output vectors
+output_tbl <- data.frame(player_num, player_nom, player_state, total_points, pre_rating, opponent_rating)
+output_tbl
+
+# write dataframe to CSV
+write.table(output_tbl, file = "tournamentinfo.csv", row.names=FALSE,sep = ",")
+```
+
