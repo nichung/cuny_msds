@@ -15,6 +15,7 @@ library(XML)
 library(RCurl)
 library(tau)
 library(dplyr)
+library(tidyr)
 ```
 
 # 1. question 
@@ -24,12 +25,20 @@ library(dplyr)
 ##### (2) Read the information from your .CSV file into R, and use tidyr and dplyr as needed to tidy and transform your data.
 ##### (3) Perform analysis to compare the arrival delays for the two airlines.
 ##### (4) Your code should be in an R Markdown file, posted to rpubs.com, and should include narrative descriptions of your data cleanup work, analysis, and conclusions. Please include in your homework submission:
-##### + The URL to the .Rmd file in your GitHub repository. and
-##### + The URL for your rpubs.com web page.
+##### * The URL to the .Rmd file in your GitHub repository. and
+##### * The URL for your rpubs.com web page.
 
 # 2. methodology
+##### 1. build original table in csv
+##### 2. load and melt
 
 # 2-1. data loading
 ```{r}
+# read csv into R
+raw_data <- read.csv("airline_delays.csv", sep = ",")
+raw_data
 ```
 
+```{r}
+
+```
