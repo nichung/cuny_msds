@@ -47,17 +47,50 @@ raw_data
 * count, stored in the cell values
 
 ```{r}
-# modify column names for easier reference 
-headers.raw_data <- raw_data %>% rename(airline = 1, status = 2)
+# modify column names for easier reference and drop row with blank values 
+headers.raw_data <- raw_data %>% 
+  rename(airline = 1, status = 2) %>%
+  drop_na()
 headers.raw_data
+```
 
-# melt test
-molten.raw_data <- headers.raw_data %>% pivot_longer(-c(airline, status), names_to = "city", values_to = "count")
-molten.raw_data
+# 2-3. tidying
+##### data cleaning requires that:
+* the city names are gathered into a column against counts
+* the status are spread against count
+* city values have spaces instead of periods
+* descriptive calculations are available for analysis and visualization
+
+```{r}
+# melt city and count
+molten.raw_data <- headers.raw_data %>% 
+  pivot_longer(-c(airline, status), names_to = "city", values_to = "count")
+head(molten.raw_data)
+```
+
+```{r}
+# cast status and count
+casted.raw_data <- molten.raw_data %>%
+  pivot_wider(names_from = "status", values_from = "count")
+head(casted.raw_data)
 ```
 
 ```{r}
 # replace period with spaces for values in column "city"
-molten.raw_data$city <- str_replace_all(molten.raw_data$city, "\\.", " ")
-molten.raw_data
+casted.raw_data$city <- str_replace_all(casted.raw_data$city, "\\.", " ")
+head(casted.raw_data)
+```
+
+```{r}
+# new column for total flights
+casted.raw_data$flights <- casted.raw_data$`on time` + casted.raw_data$delayed
+
+# new column for percentage of flights that are delayed
+casted.raw_data$delayed_rate <- casted.raw_data$delayed / casted.raw_data$flights
+casted.raw_data
+```
+
+# 3. Findings
+```{r}
+boxplot(casted.raw_data$delayed_rate, casted.raw_data$airline, main = "tst")
 ```
