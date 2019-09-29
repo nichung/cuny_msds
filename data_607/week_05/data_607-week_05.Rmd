@@ -11,15 +11,14 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 # load packages
 library(stringr)
-library(XML)
-library(RCurl)
-library(tau)
 library(dplyr)
 library(tidyr)
+library(ggplot2)
 ```
 
 # 1. question 
 ![source: Numbersense, Kaiser Fung, McGraw HIll, 2013](week05.png)
+
 ##### The chart above describes arrival delays for two airlines across five destinations. Your task is to:
 ##### (1) Create a .CSV file (or optionally, a MySQL database!) that includes all of the information above. You’re encouraged to use a “wide” structure similar to how the information appears above, so that you can practice tidying and transformations as described below.
 ##### (2) Read the information from your .CSV file into R, and use tidyr and dplyr as needed to tidy and transform your data.
@@ -40,7 +39,7 @@ raw_data
 ```
 
 # 2-2. observations
-###### this dataset contains four variables:
+##### this dataset contains four variables:
 * airline, stored in the rows
 * status, stored in the rows
 * city, spread across the column names,
@@ -90,7 +89,39 @@ casted.raw_data$delayed_rate <- casted.raw_data$delayed / casted.raw_data$flight
 casted.raw_data
 ```
 
-# 3. Findings
+# 3. analysis
 ```{r}
-boxplot(casted.raw_data$delayed_rate, casted.raw_data$airline, main = "tst")
+# calculate average rate of delay for all "alaska" flights
+delayed_rate_alaska <- sum(subset(casted.raw_data, airline == "alaska")$delayed_rate) / sum(casted.raw_data$airline == "alaska") 
+
+# calculate average rate of delay for all "am west" flights
+delayed_rate_am_west <- sum(subset(casted.raw_data, airline == "am west")$delayed_rate) / sum(casted.raw_data$airline == "alaska") 
+
+# dataframe storing average rate of delay for each airline
+delays <- data.frame(c("alaska", "am west"), c(delayed_rate_alaska, delayed_rate_am_west))
+colnames(delays) <- c("airline", "delay")
+delays
 ```
+
+```{r}
+# plot delayed rate per airline
+ggplot(casted.raw_data, aes(x = city, y = delayed_rate, fill = city)) +
+   geom_bar(stat = 'identity', position = position_dodge()) + # get bar graph of count
+   facet_grid(~airline) + # group by airline
+   theme(axis.text.x = element_text(angle = 90)) + # rotate x-axis labels
+   labs(y="count", title="rate of flight delays by airline and city", subtitle="alaska vs. am west") # labels
+```
+
+```{r}
+# plot delays stacked by flights per airline
+ggplot(casted.raw_data, aes(x = city, y = delayed, fill = flights)) +
+   geom_bar(stat = 'identity', position = position_stack()) + # get bar graph of count
+   facet_grid(~airline) + # group by airline
+   theme(axis.text.x = element_text(angle = 90)) + # rotate x-axis labels
+   labs(y="delays", title="count of flight delays by airline and city", subtitle="alaska vs. am west") # labels
+```
+
+# 4. conclusions
+* "alaska" airlines has fewer delays than does "am west"
+* despite having more flights to phoenix than any other city, "am west" operates with the least delays in phoenix
+* "alaska" flight delays correlate more strongly with total number of flights than do "am west"
