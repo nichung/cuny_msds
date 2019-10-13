@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<books>
+
+<book>
+  <title lang="en">capital carceralism</title>
+  <author>jackie wang</author>
+  <publisher>semiotext(e)</publisher>
+  <year_published>2018</year_published>
+  <pages>360</pages>
+</book>
+
+<book>
+  <title lang="en">the information</title>
+  <author>james gleick</author>
+  <publisher>pantheon books</publisher>
+  <year_published>2011</year_published>
+  <pages>544</pages>
+</book>
+
+<book>
+  <title lang="en">the communist manifesto</title>
+  <author>karl marx, frederich engels</author>
+  <publisher>penguin classic</publisher>
+  <year_published>2001</year_published>
+  <pages>64</pages>
+</book>
+
+</books>
+

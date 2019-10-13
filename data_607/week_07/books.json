@@ -1,0 +1,24 @@
+{"nich's books" :[
+    {
+    "title" : "capital carceralism",
+    "author" : "jackie wang",
+    "publisher" : "semiotext(e)",
+    "year_published" : 2018,
+    "pages" : 360
+    },
+    {
+    "title" : "the information",
+    "author" : "james gleick",
+    "publisher" : "pantheon books",
+    "year_published" : 2011,
+    "pages" : 544
+    },
+    {
+    "title" : "the communist manifesto",
+    "author" : "karl marx, frederich engels",
+    "publisher" : "penguin classic",
+    "year_published" : 2001,
+    "pages" : 64
+    }
+  ]
+}
