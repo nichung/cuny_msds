@@ -39,7 +39,7 @@ for (i in myJSON ) {
 headline <- list()
 connections <- list()
 location <- list()
-skills <- matrix()
+
 for (i in myJSON) {
     headline <- append(headline, i$profile$headline)
     connections <- append(connections, i$profile$connections)
