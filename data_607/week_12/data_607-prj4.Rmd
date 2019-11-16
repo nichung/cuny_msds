@@ -14,6 +14,7 @@ library(dplyr)
 library(RPostgres)
 library(DBI)
 library(neo4r)
+library(magrittr)
 ```
 
 # Assignment
@@ -24,8 +25,6 @@ For the relational database, you might use the flights database, the tb database
 For the NoSQL database, you may use MongoDB (which we introduced in week 7), Neo4j, or another NoSQL database of your choosing.
 
 Your migration process needs to be reproducible.  R code is encouraged, but not required.  You should also briefly describe the advantages and disadvantages of storing the data in a relational database vs. your NoSQL database.
-
-# rmdb vs graph
 
 # approach
 For this assignment, we modified a table previously created for Assignment 2, where the table described peer ratings for a sample of 2019 films. The table combined two types of attributes: descriptive information and the ratings. To create a proper property graph model of the information stored in this table, we split the table in two: "movie_ratings" and "movies", where "movie_ratings" describes "movies". 
@@ -70,18 +69,58 @@ con <- neo4j_api$new(
 con$ping() # ping server
 con$get_version() # check neo4j version
 
-on_load_query <- 'CREATE (n:Movies)
+on_load_query_m <- 'CREATE (n:Movies)
   SET n = row,
   n.movieId = toInteger(row.movieId),
   n.title = toString(row.title),
   n.releasedate = toInteger(row.releasedate),
   n.budget = toInteger(row.budget);'
 
-# send the csv 
-load_csv(url = "data/movies.csv", 
+on_load_query_r <- 'CREATE (n:Ratings)
+  SET n = row,
+  n.movieId = toInteger(row.movieId),
+  n.score1 = toInteger(row.score1),
+  n.score2 = toInteger(row.score2),
+  n.score3 = toInteger(row.score3),
+  n.score4 = toInteger(row.score4),
+  n.score5 = toInteger(row.score5);'
+
+# send the csvs 
+load_csv(url = "https://raw.githubusercontent.com/nichung/cuny_msds/master/data_607/week_12/data/movies.csv", 
          con = con, header = TRUE, periodic_commit = 50, 
-         as = "row", on_load = on_load_query)
+         as = "row", on_load = on_load_query_m)
+
+load_csv(url = "https://raw.githubusercontent.com/nichung/cuny_msds/master/data_607/week_12/data/movie_ratings.csv", 
+         con = con, header = TRUE, periodic_commit = 50, 
+         as = "row", on_load = on_load_query_r)
+
+# confirm migration
+con$get_labels() # get node labels
+
+"MATCH (n:Movies) RETURN n LIMIT 25;" %>% # get node
+  call_neo4j(con)
+"MATCH (n:Ratings) RETURN n LIMIT 25;" %>%
+  call_neo4j(con)
+
+# create relationships
+"MATCH (a:Ratings),(b:Movies) WHERE a.movieid = '10121' AND b.movieid = '10121' CREATE (a)-[r:DESCRIBES]->(b) RETURN r" %>%
+  call_neo4j(con)
+"MATCH (a:Ratings),(b:Movies) WHERE a.movieid = '10122' AND b.movieid = '10122' CREATE (a)-[r:DESCRIBES]->(b) RETURN r" %>%
+  call_neo4j(con)
+"MATCH (a:Ratings),(b:Movies) WHERE a.movieid = '10123' AND b.movieid = '10123' CREATE (a)-[r:DESCRIBES]->(b) RETURN r" %>%
+  call_neo4j(con)
+"MATCH (a:Ratings),(b:Movies) WHERE a.movieid = '10124' AND b.movieid = '10124' CREATE (a)-[r:DESCRIBES]->(b) RETURN r" %>%
+  call_neo4j(con)
+"MATCH (a:Ratings),(b:Movies) WHERE a.movieid = '10125' AND b.movieid = '10125' CREATE (a)-[r:DESCRIBES]->(b) RETURN r" %>%
+  call_neo4j(con)
+"MATCH (a:Ratings),(b:Movies) WHERE a.movieid = '10126' AND b.movieid = '10126' CREATE (a)-[r:DESCRIBES]->(b) RETURN r" %>%
+  call_neo4j(con)
 ```
+
+# discussion
+For a simple dataset like the subject of this migration, a relational database works just fine: there are no complex relationships and the data itself is well structured. As a result, the queries are simple and require few joins. On Neo4j, however, it would be possible to add nested heirarchies and potentially even the movie files themselves. While the graph database is more flexible, it is glaringly over-powered for this application. 
+
+
 
 # references
 * https://neo4j.com/developer/guide-importing-data-and-etl/
