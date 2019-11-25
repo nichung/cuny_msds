@@ -1,6 +1,6 @@
 ---
 title: "week 12 assignment"
-author: "Jai Jeffryes, Tamiko Jenkins, Nicholas Chung"
+author: "Tamiko Jenkins, Nicholas Chung"
 date: "11/16/2019"
 output: 
   html_document:
@@ -65,7 +65,7 @@ write.csv(movie_ratings, "data/movie_ratings.csv", row.names = FALSE)
 con <- neo4j_api$new(
   url = "http://localhost:7474",
   user = "neo4j", 
-  password = rstudioapi::askForPassword()
+  password = "redy2rok"
   )
 
 con$ping() # ping server
